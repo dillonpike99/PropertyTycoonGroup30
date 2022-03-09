@@ -27,8 +27,8 @@ class Property(Tile):
             self.houses += 1
 
     def removeHouse(self):
-        if self.houses < 5:
-            self.houses += 1
+        if self.houses > 0:
+            self.houses -= 1
 
 class Station(Tile):
 
