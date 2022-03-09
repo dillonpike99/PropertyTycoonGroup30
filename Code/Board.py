@@ -1,10 +1,10 @@
 class Board:
 
-	tiles = []
+    tiles = []
 
-	def addTile(self, tile):
-		self.tiles.append(tile)
+    def addTile(self, tile):
+        self.tiles.append(tile)
 
-	def printTiles(self):
-		for tile in self.tiles:
-			tile.printTile()
+    def printTiles(self):
+        for tile in self.tiles:
+            tile.printTile()
