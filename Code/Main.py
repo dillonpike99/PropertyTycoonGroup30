@@ -1,5 +1,7 @@
 from Parser import Parser
 from Board import Board
+from Game import Game
+from Player import Player
 from Tile import *
 
 class Main:
@@ -11,7 +13,7 @@ class Main:
         pass
 
     def addTilesToBoard(self):
-        tiles = self.parser.getData()
+        tiles = self.parser.getTiles()
         for tile in tiles:
             if len(tile) == 4:
                 self.board.addTile(Tile(*tile))
@@ -22,9 +24,16 @@ class Main:
                     self.board.addTile(Utility(*tile))
                 else:
                     self.board.addTile(Property(*tile))
-        self.board.printTiles()
+        #self.board.printTiles()
+
+    def createGame(self):
+        players = []
+        for i in range(2):
+            players.append(Player())
+        Game(self.board, players)
 
 
 if __name__ == '__main__':
     main = Main()
     main.addTilesToBoard()
+    main.createGame()

@@ -22,6 +22,9 @@ class Property(Tile):
     def printTile(self):
         print(self.position, self.name, self.group, self.cost, self.rent)
 
+    def calculateRent(self):
+        return self.rent[self.houses]
+
     def addHouse(self):
         if self.houses < 5:
             self.houses += 1

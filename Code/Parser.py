@@ -6,7 +6,7 @@ class Parser:
         wb = load_workbook("Data/PropertyTycoonBoardData.xlsx")
         self.sheet = wb["Sheet1"]
 
-    def getData(self):
+    def getTiles(self):
         columns = ["A", "B", "D", "F", "H", "I", "K", "L", "M", "N", "O"]
         tiles = []
         for i in range(5, 45):
