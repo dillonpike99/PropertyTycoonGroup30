@@ -11,13 +11,12 @@ class Tile:
 
 class Property(Tile):
 
-    houses = 0
-    owner = None
-    
     def __init__(self, pos, name, group, cbb, cost, r0, r1, r2, r3, r4, r5):
         super().__init__(pos, name, group, cbb)
         self.cost = cost
         self.rent = [r0, r1, r2, r3, r4, r5]
+        self.houses = 0
+        self.owner = None
 
     def printTile(self):
         print(self.position, self.name, self.group, self.cost, self.rent)
@@ -35,22 +34,22 @@ class Property(Tile):
 
 class Station(Tile):
 
-    owner = None
-    
+    rent = [25, 50, 100, 200]
+
     def __init__(self, pos, name, group, cbb, cost):
         super().__init__(pos, name, group, cbb)
         self.cost = cost
+        self.owner = None
 
     def printTile(self):
         print(self.position, self.name, self.group, self.cost)
 
 class Utility(Tile):
 
-    owner = None
-
     def __init__(self, pos, name, group, cbb, cost):
         super().__init__(pos, name, group, cbb)
         self.cost = cost
+        self.owner = None
 
     def printTile(self):
         print(self.position, self.name, self.group, self.cost)

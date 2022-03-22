@@ -1,16 +1,14 @@
 from Parser import Parser
 from Board import Board
 from Game import Game
-from Player import Player
+from Player import *
 from Tile import *
 
 class Main:
 
-    board = Board()
-    parser = Parser()
-
     def __init__(self):
-        pass
+        self.parser = Parser()
+        self.board = Board()
 
     def addTilesToBoard(self):
         tiles = self.parser.getTiles()
@@ -27,13 +25,13 @@ class Main:
         #self.board.printTiles()
 
     def createGame(self):
+        self.addTilesToBoard()
         players = []
         for i in range(2):
-            players.append(Player())
+            players.append(Player(i))
         Game(self.board, players)
 
 
 if __name__ == '__main__':
     main = Main()
-    main.addTilesToBoard()
     main.createGame()
