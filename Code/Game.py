@@ -29,6 +29,7 @@ class Game:
                     self.playJailTurn(currentPlayer)
                 else:
                     self.playTurn(currentPlayer)
+                input()
             currentPlayerNo = currentPlayerNo + 1 if currentPlayerNo < len(self.players) - 1 else 0
 
     def rollOrder(self):
@@ -44,15 +45,13 @@ class Game:
                 if doubleCount == 3:
                     player.sendToJail()
                     print(f"Rolled {die[0]} + {die[1]} = {dieTotal}")
-                    print(f"Player {self.players.index(player)} Position {player.position} ({self.board.getTile(player.position).name})")
-                    input()
+                    print(f"{player.name} Position {player.position} ({self.board.getTile(player.position).name})")
                     break
 
             player.position = Game.movePlayer(player, dieTotal)
             print(f"Rolled {die[0]} + {die[1]} = {dieTotal}")
-            print(f"Player {self.players.index(player)} Position {player.position} ({self.board.getTile(player.position).name}) Cash: {player.money}")
+            print(f"{player.name} Position {player.position} ({self.board.getTile(player.position).name}) Cash: {player.money}")
             self.landedOn(player)
-            input()
             if die[0] != die[1]:
                 break
 
@@ -66,12 +65,12 @@ class Game:
 
     def payRent(self, player, tile):
         if isinstance(tile, Property):
-            if self.board.ownsColourGroupNoHouses(tile):
+            if self.board.ownsColourGroupAndNoHouses(tile):
                 self.transferMoney(player, tile.owner, tile.rent[0]*2)
             else:
                 self.transferMoney(player, tile.owner, tile.calculateRent())
         elif isinstance(tile, Station):
-            self.transferMoney(player, tile.owner, tile.rent[self.board.ownsNoOfStations(tile.owner) - 1])
+            self.transferMoney(player, tile.owner, tile.rent[self.board.ownsXNoOfStations(tile.owner) - 1])
         elif isinstance(tile, Utility):
             if self.board.ownsBothUtilities(tile.owner):
                 self.transferMoney(player, tile.owner, self.currentDieRoll*10)
@@ -79,8 +78,10 @@ class Game:
                 self.transferMoney(player, tile.owner, self.currentDieRoll*4)
 
     def transferMoney(self, p1, p2, amount):
-        p1.money -= amount
-        p2.money += amount
+        if p1:
+            p1.money -= amount
+        if p2:
+            p2.money += amount
         print(f"{p1.name} paid {p2.name} £{amount}")
 
     def movePlayer(player, spaces):
@@ -91,7 +92,7 @@ class Game:
         return newPosition
 
     def playJailTurn(self, player):
-        print(f"Player {self.players.index(player)} is in jail.")
+        print(f"{player.name} is in jail.")
         if player.jailTurn == 0:
             ans = input("Pay £50 to leave? ")
             if ans == "y":

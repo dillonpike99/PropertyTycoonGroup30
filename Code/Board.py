@@ -20,13 +20,19 @@ class Board:
                 groupTiles.append(tile)
         return groupTiles
 
-    def ownsColourGroupNoHouses(self, tile):
+    def ownsColourGroup(self, tile):
+        for t in self.getGroup(tile.group):
+            if t.owner != tile.owner:
+                return False
+        return True
+
+    def ownsColourGroupAndNoHouses(self, tile):
         for t in self.getGroup(tile.group):
             if t.houses > 0 or t.owner != tile.owner:
                 return False
         return True
 
-    def ownsNoOfStations(self, player):
+    def ownsXNoOfStations(self, player):
         count = 0
         for station in self.getGroup("Station"):
             if station.owner == player:
@@ -34,5 +40,5 @@ class Board:
         return count
 
     def ownsBothUtilities(self, player):
-        u = self.getGroup("Utilities")
-        return True if u[0].owner == u[1].owner else False
+        util = self.getGroup("Utilities")
+        return True if util[0].owner == util[1].owner else False

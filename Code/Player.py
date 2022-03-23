@@ -1,7 +1,7 @@
 class Player:
 
     def __init__(self, n):
-        self.name = "Player" + str(n)
+        self.name = "Player" + str(n + 1)
         self.position = 1
         self.money = 1500
         self.properties = []
