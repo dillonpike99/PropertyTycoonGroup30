@@ -1,6 +1,7 @@
 from Parser import Parser
 from Board import Board
 from Game import Game
+from Card import Cards
 from Player import *
 from Tile import *
 
@@ -26,10 +27,9 @@ class Main:
 
     def createGame(self):
         self.addTilesToBoard()
-        players = []
-        for i in range(2):
-            players.append(Player(i))
-        Game(self.board, players)
+        cards = Cards(self.parser.getCards())
+        players = [Player(i) for i in range(4)]
+        Game(self.board, cards, players)
 
 
 if __name__ == '__main__':

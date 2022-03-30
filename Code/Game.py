@@ -3,8 +3,9 @@ from Tile import *
 
 class Game:
 
-    def __init__(self, board, players):
+    def __init__(self, board, cards, players):
         self.board = board
+        self.cards = cards
         self.players = players
         self.currentDieRoll = 0
         self.freeParkingValue = 0
@@ -45,44 +46,16 @@ class Game:
                 if doubleCount == 3:
                     player.sendToJail()
                     print(f"Rolled {die[0]} + {die[1]} = {dieTotal}")
-                    print(f"{player.name} Position {player.position} ({self.board.getTile(player.position).name})")
+                    print(f"{player.name} Position {player.position} ({self.board.getTileName(player)})")
                     break
 
             player.position = Game.movePlayer(player, dieTotal)
-            print(f"Rolled {die[0]} + {die[1]} = {dieTotal}")
-            print(f"{player.name} Position {player.position} ({self.board.getTile(player.position).name}) Cash: {player.money}")
-            self.landedOn(player)
-            if die[0] != die[1]:
-                break
-
-    def landedOn(self, player):
-        tile = self.board.getTile(player.position)
-        if hasattr(tile, "owner"):
-            if tile.owner == None:
-                pass#option to buy/auction
-            elif tile.owner != player:
-                self.payRent(player, tile)
-
-    def payRent(self, player, tile):
-        if isinstance(tile, Property):
-            if self.board.ownsColourGroupAndNoHouses(tile):
-                self.transferMoney(player, tile.owner, tile.rent[0]*2)
-            else:
-                self.transferMoney(player, tile.owner, tile.calculateRent())
-        elif isinstance(tile, Station):
-            self.transferMoney(player, tile.owner, tile.rent[self.board.ownsXNoOfStations(tile.owner) - 1])
-        elif isinstance(tile, Utility):
-            if self.board.ownsBothUtilities(tile.owner):
-                self.transferMoney(player, tile.owner, self.currentDieRoll*10)
-            else:
-                self.transferMoney(player, tile.owner, self.currentDieRoll*4)
-
-    def transferMoney(self, p1, p2, amount):
-        if p1:
-            p1.money -= amount
-        if p2:
-            p2.money += amount
-        print(f"{p1.name} paid {p2.name} £{amount}")
+            print(f"{player.name} Rolled {die[0]} + {die[1]} = {dieTotal}, landing on {self.board.getTileName(player)} ({player.position})")
+            self.landedOnAction(player)
+            print(f"Position {player.position} ({self.board.getTileName(player)}) Cash: {player.money}")
+            
+            if die[0] != die[1] or player.inJail:
+                break # Player's turn only continues if they throw a double and haven't been sent to jail.
 
     def movePlayer(player, spaces):
         newPosition = player.position + spaces
@@ -91,22 +64,72 @@ class Game:
             player.passGo()
         return newPosition
 
+    def landedOnAction(self, player):
+        tile = self.board.getTile(player.position)
+        if hasattr(tile, "owner"):
+            if tile.owner == None:
+                pass#option to buy/auction
+            elif tile.owner != player:
+                self.payRent(player, tile)
+        elif tile.group == "Tax":
+            self.payTax(player)
+        elif tile.group == "Card":
+            fine = self.cards.takeCard(player, tile)
+            self.freeParkingValue += fine
+        elif tile.name == "Free Parking":
+            player.money += self.freeParkingValue
+            self.freeParkingValue = 0
+        elif tile.name == "Go to Jail":
+            player.sendToJail()
+
+    def payRent(self, player, tile):
+        if isinstance(tile, Property):
+            if self.board.ownsColourGroupAndNoHouses(tile):
+                Game.transferMoney(player, tile.owner, tile.rent[0]*2)
+            else:
+                Game.transferMoney(player, tile.owner, tile.calculateRent())
+        elif isinstance(tile, Station):
+            Game.transferMoney(player, tile.owner, tile.rent[self.board.ownsXNoOfStations(tile.owner) - 1])
+        elif isinstance(tile, Utility):
+            if self.board.ownsBothUtilities(tile.owner):
+                Game.transferMoney(player, tile.owner, self.currentDieRoll*10)
+            else:
+                Game.transferMoney(player, tile.owner, self.currentDieRoll*4)
+
+    def transferMoney(p1, p2, amount):
+        if p1:
+            p1.money -= amount
+        if p2:
+            p2.money += amount
+        print(f"{p1.name} paid {p2.name} £{amount}")
+
+    def payTax(self, player):
+        amount = {5: 200, 39: 100}
+        player.money -= amount[player.position]
+        self.freeParkingValue += amount[player.position]
+
     def playJailTurn(self, player):
         print(f"{player.name} is in jail.")
         if player.jailTurn == 0:
-            ans = input("Pay £50 to leave? ")
-            if ans == "y":
-                player.inJail = False
-                player.money -= 50
-                self.freeParkingValue += 50
+            if player.getOutOfJailFree > 0:
+                ans = input("Use get out of jail free card?")
+                if ans == "y":
+                    player.inJail = False
+                    self.cards.returnJailFreeCard(player)
+                else:
+                    player.jailTurn += 1
             else:
-                player.jailTurn += 1
+                ans = input("Pay £50 to leave? ")
+                if ans == "y":
+                    player.inJail = False
+                    player.money -= 50
+                    self.freeParkingValue += 50
+                else:
+                    player.jailTurn += 1
         elif player.jailTurn == 1:
             player.jailTurn += 1
-            input()
         else:
             player.inJail = False
-            input()
 
     def rollDie():
         a = random.randint(1, 6)

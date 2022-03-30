@@ -9,6 +9,12 @@ class Board:
     def getTile(self, position):
         return self.tiles[position - 1]
 
+    def getTileName(self, player):
+        if player.position == 11:
+            return "Jail" if player.inJail else "Just visiting"
+        else:
+            return self.getTile(player.position).name
+
     def printTiles(self):
         for tile in self.tiles:
             tile.printTile()
