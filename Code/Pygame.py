@@ -5,14 +5,14 @@ size = width, height = 1920,1080
 clock = pygame.time.Clock()
 crashed = False
 screen = pygame.display.set_mode(size)
-name_list = os.listdir("1x")
+name_list = os.listdir("Tiles")
 white = 255,255,255
 name_lists = sorted(name_list)
 
 def getImages():
     image_list = []
     for card in name_lists:
-        image_list.append(pygame.image.load(os.path.join("1x", card)))
+        image_list.append(pygame.image.load(os.path.join("Tiles", card)))
     return image_list
 
 def fillBoard(image_list):
