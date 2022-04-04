@@ -1,7 +1,7 @@
 from Parser import Parser
 from Board import Board
 from Game import Game
-from Card import Cards
+from Cards import Cards
 from Player import *
 from Tile import *
 
