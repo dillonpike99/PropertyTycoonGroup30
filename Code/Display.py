@@ -3,7 +3,6 @@ import sys, pygame, glob, os
 class Display:
 
     def __init__(self):
-        self.colour = {"white": (255,255,255), "black": (0,0,0)}
 
         pygame.init()
         self.clock = pygame.time.Clock()
@@ -23,7 +22,7 @@ class Display:
         running = True
         while running:
 
-            self.screen.fill(self.colour["white"])
+            self.screen.fill(Colour.white)
             if playButton.draw(self.screen):
                 self.game()
             if exitButton.draw(self.screen):
@@ -58,7 +57,7 @@ class Display:
         for tile in tileFiles:
             tileImages.append(pygame.image.load(os.path.join("Tiles", tile)).convert_alpha())
 
-        self.screen.fill(self.colour["white"])
+        self.screen.fill(Colour.white)
         coordx = 875
         coordy = 795
         switcher = 0
@@ -110,6 +109,8 @@ class Button():
     def draw(self, surface):
         clicked = False
 
+        #surface.blit(self.image, (self.rect.x, self.rect.y))
+
         pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] and not self.click:
@@ -122,6 +123,14 @@ class Button():
         surface.blit(self.image, (self.rect.x, self.rect.y))
 
         return clicked
+
+class Colour():
+
+    black = (0,0,0)
+    white = (255,255,255)
+    red = (255,0,0)
+    green = (0,255,0)
+    blue = (0,0,255)
 
 if __name__ == '__main__':
     Display()
