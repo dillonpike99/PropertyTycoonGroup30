@@ -35,7 +35,7 @@ class Display:
             self.update()
 
     def game(self):
-        self.fillBoard()
+        self.drawBoard()
 
         running = True
         while running:
@@ -51,7 +51,7 @@ class Display:
 
             self.update()
 
-    def fillBoard(self):
+    def drawBoard(self):
         tileFiles = sorted(os.listdir("Tiles"))
         tileImages = []
         for tile in tileFiles:
@@ -87,6 +87,9 @@ class Display:
             
             self.screen.blit(tile, (coordx,coordy))
             switcher += 1
+
+    def movePlayer(self, player, spaces):
+        pass
 
     def update(self):
         self.display.update()
