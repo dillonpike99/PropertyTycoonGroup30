@@ -34,6 +34,22 @@ class Display:
 
             self.update()
 
+    def selectPlayers(self):
+        running = True
+        while running:
+
+            self.screen.fill(Colour.white)
+            if playButton.draw(self.screen):
+                self.game()
+            if exitButton.draw(self.screen):
+                Display.quitGame()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    Display.quitGame()
+
+            self.update()
+
     def game(self):
         self.drawBoard()
 
@@ -52,14 +68,17 @@ class Display:
             self.update()
 
     def drawBoard(self):
+        self.screen.fill(Colour.white)
+        boardBoarder = pygame.Rect((80, 75), (915, 915))
+        pygame.draw.rect(self.screen, Colour.black, boardBoarder, 2)
+
         tileFiles = sorted(os.listdir("Tiles"))
         tileImages = []
         for tile in tileFiles:
             tileImages.append(pygame.image.load(os.path.join("Tiles", tile)).convert_alpha())
 
-        self.screen.fill(Colour.white)
-        coordx = 875
-        coordy = 795
+        coordx = 950
+        coordy = 870
         switcher = 0
         turn = 0
         for tile in tileImages:
@@ -99,7 +118,7 @@ class Display:
         pygame.quit()
         sys.exit()
 
-class Button():
+class Button:
 
     def __init__(self, x, y, image, scale):
         width = image.get_width()
@@ -111,8 +130,6 @@ class Button():
 
     def draw(self, surface):
         clicked = False
-
-        #surface.blit(self.image, (self.rect.x, self.rect.y))
 
         pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(pos):
@@ -127,7 +144,27 @@ class Button():
 
         return clicked
 
-class Colour():
+class playerSelector:
+
+    def __init__(self, active, agent, number):
+        self.active = False
+        self.agent = agent
+        self.name = f"Computer {number}" if agent else f"Human {number}"
+        self.token = number
+
+    def draw(self, surface, number):
+
+        boardBoarder = pygame.Rect((80, 75), (915, 915))
+        pygame.draw.rect(self.screen, Colour.black, boardBoarder, 2)
+
+    def setAgent(self, agent):
+        if agent:
+            self.agent = True
+        else:
+            self.agent = False
+
+
+class Colour:
 
     black = (0,0,0)
     white = (255,255,255)
