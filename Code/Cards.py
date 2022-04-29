@@ -38,7 +38,10 @@ class Pack:
             self.order.append(cardNo)
         print(f"Card: {self.names[cardNo]}")
         fine = self.cardFunctions[cardNo](player)
-        return fine if fine else 0
+        if fine:
+            return fine, self.names[cardNo]
+        else:
+            return 0, self.names[cardNo]
 
 class PotLuck(Pack):
 

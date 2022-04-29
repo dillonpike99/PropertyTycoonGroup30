@@ -15,10 +15,6 @@ class Board:
         else:
             return self.getTile(player.position).name
 
-    def printTiles(self):
-        for tile in self.tiles:
-            tile.printTile()
-
     def getGroup(self, group):
         groupTiles = []
         for tile in self.tiles:
@@ -48,3 +44,27 @@ class Board:
     def ownsBothUtilities(self, player):
         util = self.getGroup("Utilities")
         return True if util[0].owner == util[1].owner else False
+
+    def ownedProperties(self, player):
+        properties = []
+        for tile in self.tiles:
+            if hasattr(tile, "owner"):
+                if tile.owner is player and not tile.mortgaged:
+                    properties.append(tile)
+        return properties
+
+    def mortgagedProperties(self, player):
+        properties = []
+        for tile in self.tiles:
+            if hasattr(tile, "owner"):
+                if tile.owner is player and tile.mortgaged:
+                    properties.append(tile)
+        return properties
+
+    def playerPositions(self, players):
+        positions = {}
+        for player in players:
+            if player.position not in positions:
+                positions[player.position] = []
+            positions[player.position].append(player)
+        return positions

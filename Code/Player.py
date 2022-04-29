@@ -1,10 +1,10 @@
 class Player:
 
-    def __init__(self, n):
-        self.name = "Player" + str(n + 1)
+    def __init__(self, name, token):
+        self.name = name
+        self.token = token
         self.position = 1
         self.money = 1500
-        self.properties = []
         self.isBankrupt = False
         self.inJail = False
         self.jailTurn = 0
@@ -21,10 +21,25 @@ class Player:
         self.inJail = True
         self.jailTurn = 0
 
+    def __str__(self):
+        return self.name
+
+class Human(Player):
+
+    def __init__(self, name, token):
+        super().__init__(name, token)
+
 class Agent(Player):
 
-    def __init__(self):
-        pass
+    def __init__(self, name, token):
+        super().__init__(name, token)
 
 class Token:
-    pass
+    
+    tokens = ["Boot", "Cat", "Hat Stand", "Iron", "Ship", "Smartphone"]
+
+    def path(token):
+        return f"Images/Tokens/{token}.png"
+
+    def unusedTokens(usedTokens):
+        return [token for token in Token.tokens if token not in usedTokens]
