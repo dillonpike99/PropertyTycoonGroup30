@@ -1,5 +1,9 @@
 from openpyxl import load_workbook
 
+"""
+The Parser class uses the openpyxl library to grab all the board and card data from the
+relevant Excel files.
+"""
 class Parser:
 
     def __init__(self):

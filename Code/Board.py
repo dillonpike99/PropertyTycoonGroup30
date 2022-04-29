@@ -1,5 +1,9 @@
 from Tile import *
 
+"""
+The Board class holds the list of tiles on the board, and has many methods for retriving
+informtion about them and the player's ownership of them.
+"""
 class Board:
 
     def __init__(self):

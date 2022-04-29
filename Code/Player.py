@@ -1,3 +1,6 @@
+"""
+The Player class hold all the information about a player within the game.
+"""
 class Player:
 
     def __init__(self, name, token):
@@ -24,6 +27,11 @@ class Player:
     def __str__(self):
         return self.name
 
+"""
+In a complete game, there would be differences between how a human player and an autonomous
+player agent would function. However, due to lack of personel and time these differences
+were not achieved.
+"""
 class Human(Player):
 
     def __init__(self, name, token):

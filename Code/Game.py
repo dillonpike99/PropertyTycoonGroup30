@@ -1,6 +1,11 @@
 import random
 from Tile import *
 
+"""
+The Game class hold all the information for a game of Property Tycoon, from the list
+of tiles on the board, cards in Pot Luck/Oppertunity knocks, and the players in the
+game. This information is seperated into their own seperate classes and stored here.
+"""
 class Game:
 
     def __init__(self, board, cards, players):

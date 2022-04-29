@@ -1,5 +1,9 @@
 from random import shuffle
 
+"""
+The Cards class holds the packs of Pot Luck and Opportunity Knocks cards, and the methods.
+that execute their instructions 
+"""
 class Cards:
 
     def __init__(self, cards):

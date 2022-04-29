@@ -6,8 +6,16 @@ from Cards import Cards
 from Player import *
 from Tile import *
 
+
+"""
+The Display class takes a Board and Cards object, the contents of which are gained from the
+relevent Excel spreadsheet by the Parser class and sent from the Main class.
+"""
 class Display:
 
+    """
+    The __init__ fuction of the Display class starts Pygame and runs the game.
+    """
     def __init__(self, board, cards):
 
         self.board = board
@@ -19,8 +27,6 @@ class Display:
         self.display = pygame.display
         self.display.set_caption("Property Tycoon")
         self.screen = self.display.set_mode(size)
-        #self.screen = self.display.set_mode(size, pygame.FULLSCREEN)
-
         self.mainMenu()
 
     def mainMenu(self):
@@ -240,7 +246,10 @@ class Display:
 
             self.update()
 
-
+    """
+    The game method of Display is where the main logic for Property Tycoon takes place.
+    It works closely with the Game class and handles all the changing of player data and GUI.
+    """
     def game(self, players):
         self.game = Game(self.board, self.cards, players)
         titleFont = pygame.font.SysFont("myriadpro", 60)
@@ -264,15 +273,6 @@ class Display:
         morgagePropertyButton = Button(1100, 550, morgagePropertyButtonImg, 1)
         sellPropertyButton = Button(1350, 550, sellPropertyButtonImg, 1)
         endTurnButton = Button(1600, 550, endTurnButtonImg, 1)
-
-        # self.game.board.tiles[6].owner = self.game.players[0]
-        # self.game.board.tiles[8].owner = self.game.players[0]
-        # self.game.board.tiles[9].owner = self.game.players[0]
-        # self.game.board.tiles[6].houses = 5
-        # self.game.board.tiles[8].houses = 5
-        # self.game.board.tiles[9].houses = 5
-        # self.game.players[1].money = 300
-        # self.game.board.tiles[11].owner = self.game.players[1]
 
         running = True
         while running:
@@ -937,6 +937,11 @@ class Display:
         pygame.quit()
         sys.exit()
 
+
+"""
+The Button class is used throughout the Display class to provide easy button creation.
+This allows me to avoid repeating the same code for every button.
+"""
 class Button:
 
     def __init__(self, x, y, image, scale):
@@ -950,7 +955,10 @@ class Button:
         surface.blit(self.image, (self.rect.x, self.rect.y))
         return self.rect
 
-
+"""
+The Colour class allows me to use common colours through the GUI without having to
+define them every time.
+"""
 class Colour:
 
     black = (0,0,0)
@@ -970,6 +978,10 @@ class Colour:
                     "Red": red, "Yellow": yellow, "Green": green, "Deep blue": darkBlue,
                     "Station": black, "Utilities": lightGrey}
 
+"""
+The Main class in the only class that is called outside of another class. It collects the data using Parser and
+created a Display object, starting the game.
+"""
 class Main:
 
     def __init__(self):

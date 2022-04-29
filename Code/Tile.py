@@ -1,3 +1,8 @@
+"""
+The Tile class holds information about a tile on the board. Since stations, utilities,
+and properties all work slightly differently, they have their own child classes with
+their own relevant attributes and methods.
+"""
 class Tile:
 
     def __init__(self, pos, name, group, cbb):
