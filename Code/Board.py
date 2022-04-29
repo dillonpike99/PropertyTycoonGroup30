@@ -1,3 +1,5 @@
+from Tile import *
+
 class Board:
 
     def __init__(self):
@@ -24,9 +26,27 @@ class Board:
 
     def ownsColourGroup(self, tile):
         for t in self.getGroup(tile.group):
-            if t.owner != tile.owner:
+            if t.owner != tile.owner or tile.mortgaged:
                 return False
         return True
+
+    def canAddHouse(self, tile):
+        for t in self.getGroup(tile.group):
+            if abs(tile.houses + 1 - t.houses) > 1 or tile.houses == 5:
+                return False
+        return True
+
+    def canRemoveHouse(self, tile):
+        for t in self.getGroup(tile.group):
+            if abs(tile.houses - 1 - t.houses) > 1 or tile.houses == 0:
+                return False
+        return True
+
+    def houseInGroup(self, tile):
+        for t in self.getGroup(tile.group):
+            if t.houses > 0:
+                return True
+        return False
 
     def ownsColourGroupAndNoHouses(self, tile):
         for t in self.getGroup(tile.group):
@@ -45,10 +65,18 @@ class Board:
         util = self.getGroup("Utilities")
         return True if util[0].owner == util[1].owner else False
 
-    def ownedProperties(self, player):
+    def ownedTiles(self, player):
         properties = []
         for tile in self.tiles:
             if hasattr(tile, "owner"):
+                if tile.owner is player and not tile.mortgaged:
+                    properties.append(tile)
+        return properties
+
+    def ownedProperties(self, player):
+        properties = []
+        for tile in self.tiles:
+            if isinstance(tile, Property):
                 if tile.owner is player and not tile.mortgaged:
                     properties.append(tile)
         return properties

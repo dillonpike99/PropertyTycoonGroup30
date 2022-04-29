@@ -29,12 +29,10 @@ class Property(Tile):
         return self.rent[self.houses]
 
     def addHouse(self):
-        if self.houses < 5:
-            self.houses += 1
+        self.houses += 1
 
     def removeHouse(self):
-        if self.houses > 0:
-            self.houses -= 1
+        self.houses -= 1
 
 class Station(Tile):
 

@@ -26,6 +26,7 @@ class Display:
     def mainMenu(self):
         playImg = pygame.image.load("Images/Buttons/Play_Button.png").convert_alpha()
         exitImg = pygame.image.load("Images/Buttons/Exit_Button.png").convert_alpha()
+        logoImg = pygame.image.load("Images/Logo.png").convert_alpha()
         playButton = Button(500, 600, playImg, 1)
         exitButton = Button(1000, 600, exitImg, 1)
 
@@ -33,6 +34,7 @@ class Display:
         while running:
 
             self.screen.fill(Colour.white)
+            self.screen.blit(logoImg, (450, 100))
             playRect = playButton.draw(self.screen)
             exitRect = exitButton.draw(self.screen)
 
@@ -63,7 +65,8 @@ class Display:
         plusHumanImg = pygame.image.load("Images/Buttons/PlusHuman_Button.png").convert_alpha()
         plusComputerImg = pygame.image.load("Images/Buttons/PlusComputer_Button.png").convert_alpha()
         minusImg = pygame.image.load("Images/Buttons/Minus_Button.png").convert_alpha()
-        playImg = pygame.image.load("Images/Buttons/Play_Button.png").convert_alpha()
+        playImg = pygame.image.load("Images/Buttons/Play_ButtonSmall.png").convert_alpha()
+        backImg = pygame.image.load("Images/Buttons/Back_Button.png").convert_alpha()
 
         running = True
         while running:
@@ -110,6 +113,8 @@ class Display:
 
             playButton = Button(1650, 910, playImg, 1)
             playRect = playButton.draw(self.screen)
+            backButton = Button(10, 910, backImg, 1)
+            backRect = backButton.draw(self.screen)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -151,6 +156,8 @@ class Display:
                             else:
                                 players.append(Agent(name, token))
                         self.game(players)
+                        running = False
+                    elif backRect.collidepoint(pos):
                         running = False
 
 
@@ -258,10 +265,14 @@ class Display:
         sellPropertyButton = Button(1350, 550, sellPropertyButtonImg, 1)
         endTurnButton = Button(1600, 550, endTurnButtonImg, 1)
 
-        self.game.board.tiles[6].owner = self.game.players[0]
-        self.game.board.tiles[8].owner = self.game.players[0]
-        self.game.board.tiles[9].owner = self.game.players[0]
-        self.game.board.tiles[11].owner = self.game.players[1]
+        # self.game.board.tiles[6].owner = self.game.players[0]
+        # self.game.board.tiles[8].owner = self.game.players[0]
+        # self.game.board.tiles[9].owner = self.game.players[0]
+        # self.game.board.tiles[6].houses = 5
+        # self.game.board.tiles[8].houses = 5
+        # self.game.board.tiles[9].houses = 5
+        # self.game.players[1].money = 300
+        # self.game.board.tiles[11].owner = self.game.players[1]
 
         running = True
         while running:
@@ -281,14 +292,15 @@ class Display:
             sellPropertyRect = sellPropertyButton.draw(self.screen)
             endTurnRect = endTurnButton.draw(self.screen)
 
-            if player.inJail:
-                if player.jailTurn == 3:
-                    player.inJail = False
-                    player.money -= 50
-                    self.game.freeParkingValue += 50
-                else:
-                    self.jailPopUp()
-                    rolled = True
+            if not rolled:
+                if player.inJail:
+                    if player.jailTurn == 3:
+                        player.inJail = False
+                        player.money -= 50
+                        self.game.freeParkingValue += 50
+                    else:
+                        self.jailPopUp()
+                        rolled = True
 
             for i, tileRect in enumerate(self.tileRects):
                 if tileRect.collidepoint(pygame.mouse.get_pos()):
@@ -304,7 +316,11 @@ class Display:
                     pos = pygame.mouse.get_pos()
                     for i, playerInfoRect in enumerate(playerInfoRects):
                         if playerInfoRect.collidepoint(pos):
-                            pass
+                            properties = self.game.board.ownedTiles(self.game.players[i])
+                            if properties:
+                                self.chooseProprety(properties)
+                            else:
+                                self.popUp(f"{self.game.players[i].name} has no properties!")
                     if rollRect.collidepoint(pos):
                         if not rolled:
                             self.rollDie()
@@ -331,7 +347,21 @@ class Display:
                                 owner = self.game.board.getTile(player.position).owner
                                 self.displayTileInfo(player.position-1)
                                 self.popUp(f"Pay ${rent} to {owner}.")
-                                Game.transferMoney(player, owner, rent)
+                                if self.game.calculateAssets(player) >= rent:
+                                    Game.transferMoney(player, owner, rent)
+                                else:
+                                    self.popUp("You don't have enough assets to pay.")
+                                    self.game.declareBankrupcy(player)
+                                    Game.transferMoney(player, owner, player.money)
+                                    self.popUp("You are bankrupt.")
+                                    self.game.players.remove(player)
+                                    if len(self.game.players) == 1:
+                                        self.popUp(f"Congratulations {self.game.players[0]}! You are the winner!")
+                                        running = False
+                                    else:
+                                        rolled = False
+                                        doubleCount = 0
+                                        continue
                             elif player.position in [5, 39]:
                                 self.popUp(f"Pay ${self.game.payTax(player)} in taxes.")
                             elif player.position == 21:
@@ -356,25 +386,56 @@ class Display:
                             self.popUp("You must roll first!")
                     elif buyHouseRect.collidepoint(pos):
                         if rolled:
-                            pass
+                            properties = self.game.board.ownedProperties(player)
+                            if properties:
+                                tile = self.chooseProprety(properties)
+                                if tile:
+                                    if self.game.board.ownsColourGroup(tile):
+                                        if self.game.board.canAddHouse(tile):
+                                            if player.money >= Property.houseCost[tile.group]:
+                                                tile.addHouse()
+                                                player.money -= Property.houseCost[tile.group]
+                                            else:
+                                                self.popUp("You don't have enough money!")
+                                        else:
+                                            self.popUp("You can't add a house here!")
+                                    else:
+                                        self.popUp("You don't own the colour group!")
+                            else:
+                                self.popUp("You have no properties!")
                         else:
                             self.popUp("You must roll first!")
                     elif sellHouseRect.collidepoint(pos):
-                        if rolled:
-                            pass
-                        else:
-                            self.popUp("You must roll first!")
-                    elif morgagePropertyRect.collidepoint(pos):
                         if rolled:
                             properties = self.game.board.ownedProperties(player)
                             if properties:
                                 tile = self.chooseProprety(properties)
                                 if tile:
-                                    tile.mortgaged = True
-                                    player.money += tile.cost//2
+                                    if self.game.board.ownsColourGroup(tile):
+                                        if self.game.board.canRemoveHouse(tile):
+                                            tile.removeHouse()
+                                            player.money += Property.houseCost[tile.group]
+                                        else:
+                                            self.popUp("You can't remove a house here!")
+                                    else:
+                                        self.popUp("You don't own the colour group!")
                             else:
                                 self.popUp("You have no properties!")
-
+                        else:
+                            self.popUp("You must roll first!")
+                    elif morgagePropertyRect.collidepoint(pos):
+                        if rolled:
+                            properties = self.game.board.ownedTiles(player)
+                            if properties:
+                                tile = self.chooseProprety(properties)
+                                if tile:
+                                    if not self.game.board.houseInGroup(tile):
+                                        tile.mortgaged = True
+                                        player.money += tile.cost//2
+                                    else:
+                                        self.popUp("You can't morgage a property when the group a house!")
+                            else:
+                                self.popUp("You have no properties!")
                         else:
                             self.popUp("You must roll first!")
                     elif repayMorgageRect.collidepoint(pos):
@@ -392,7 +453,14 @@ class Display:
                                 self.popUp("You have no mortgaged properties!")
                     elif sellPropertyRect.collidepoint(pos):
                         if rolled:
-                            pass
+                            properties = self.game.board.ownedTiles(player)
+                            if properties:
+                                tile = self.chooseProprety(properties)
+                                if tile:
+                                    tile.owner = None
+                                    player.money += tile.cost
+                            else:
+                                self.popUp("You have no properties!")
                         else:
                             self.popUp("You must roll first!")
 
@@ -411,6 +479,7 @@ class Display:
 
     def drawBoard(self):
         self.screen.fill(Colour.white)
+        houseFont = pygame.font.SysFont("myriadpro", 22)
         boardBoarder = pygame.Rect((80, 75), (915, 915))
         pygame.draw.rect(self.screen, Colour.black, boardBoarder, 2)
 
@@ -424,7 +493,7 @@ class Display:
         y = 870
         switcher = 0
         turn = 0
-        for tile in tileImages:
+        for i, tile in enumerate(tileImages):
             if switcher in [11, 21, 31]:
                 turn -= 90
             if switcher in [10, 20, 21 ,31]:
@@ -451,6 +520,55 @@ class Display:
             self.tileRects.append(tileRect)
             
             self.screen.blit(tile, (x, y))
+
+            p = self.game.board.getTile(i+1)
+            if hasattr(p, "houses"):
+                if i > 0 and i < 10:
+                    hx, hy = tileRect.topleft
+                    if p.houses in [2, 3, 4]:
+                        self.screen.blit(houseFont.render(f"{p.houses} houses", True, Colour.white), (hx+5, hy+10))
+                    if p.houses == 1:
+                        self.screen.blit(houseFont.render(f"{p.houses} house", True, Colour.white), (hx+5, hy+10))
+                    if p.houses == 5:
+                        self.screen.blit(houseFont.render(f"Hotel", True, Colour.white), (hx+5, hy+10))
+                if i > 20 and i < 30:
+                    hx, hy = tileRect.bottomleft
+                    if p.houses in [2, 3, 4]:
+                        self.screen.blit(houseFont.render(f"{p.houses} houses", True, Colour.white), (hx+5, hy-20))
+                    if p.houses == 1:
+                        self.screen.blit(houseFont.render(f"{p.houses} house", True, Colour.white), (hx+5, hy-20))
+                    if p.houses == 5:
+                        self.screen.blit(houseFont.render(f"Hotel", True, Colour.white), (hx+5, hy-20))
+                if i > 10 and i < 20:
+                    hx, hy = tileRect.topright
+                    if p.houses in [2, 3, 4]:
+                        text = houseFont.render(f"{p.houses} houses", True, Colour.white)
+                        text = pygame.transform.rotate(text, 90)
+                        self.screen.blit(text, (hx-30, hy+5))
+                    if p.houses == 1:
+                        text = houseFont.render(f"{p.houses} house", True, Colour.white)
+                        text = pygame.transform.rotate(text, 90)
+                        self.screen.blit(text, (hx-30, hy+5))
+                    if p.houses == 5:
+                        text = houseFont.render(f"Hotel", True, Colour.white)
+                        text = pygame.transform.rotate(text, 90)
+                        self.screen.blit(text, (hx-30, hy+5))
+                if i > 30 and i < 40:
+                    hx, hy = tileRect.topleft
+                    if p.houses in [2, 3, 4]:
+                        text = houseFont.render(f"{p.houses} houses", True, Colour.white)
+                        text = pygame.transform.rotate(text, 90)
+                        self.screen.blit(text, (hx+10, hy+5))
+                    if p.houses == 1:
+                        text = houseFont.render(f"{p.houses} house", True, Colour.white)
+                        text = pygame.transform.rotate(text, 90)
+                        self.screen.blit(text, (hx+10, hy+5))
+                    if p.houses == 5:
+                        text = houseFont.render(f"Hotel", True, Colour.white)
+                        text = pygame.transform.rotate(text, 90)
+                        self.screen.blit(text, (hx+10, hy+5))
+
+
             switcher += 1
 
     def displayPlayersOnBoard(self):
@@ -681,7 +799,7 @@ class Display:
                     elif leaveRect.collidepoint(pos):
                         del auctionPlayers[auctionTurn]
                         if len(auctionPlayers) == 1:
-                            self.popUp(f"{auctionPlayers[0].name} has won for {auctionPrice}!")
+                            self.popUp(f"{auctionPlayers[0].name} has won for ${auctionPrice}!")
                             tile.owner = auctionPlayers[0]
                             auctionPlayers[0].money -= auctionPrice
                             running = False
@@ -792,10 +910,10 @@ class Display:
             self.screen.blit(infoFont.render("Properties:", True, Colour.black), (815, 215))
             for p in properties:
                 pygame.draw.rect(self.screen, Colour.tileColours[p.group], pygame.Rect((800, y), (50, 50)))
-                self.screen.blit(nameFont.render(p.name, True, Colour.black), (860, y+5))
+                self.screen.blit(nameFont.render(p.name, True, Colour.black), (860, y+10))
                 propertyRects.append(pygame.Rect((800, y), (200, 50)))
                 y += 50
-            backButton = Button(815, y, backImg, 1)
+            backButton = Button(815, y+15, backImg, 1)
             backRect = backButton.draw(self.screen)
 
             for event in pygame.event.get():
@@ -806,6 +924,8 @@ class Display:
                     for i, rect in enumerate(propertyRects):
                         if rect.collidepoint(pos):
                             return properties[i]
+                    if backRect.collidepoint(pos):
+                        return None
 
             self.update()
 

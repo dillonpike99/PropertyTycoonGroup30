@@ -18,6 +18,29 @@ class Game:
             player.passGo()
         return newPosition
 
+    def calculateAssets(self, player):
+        total = player.money
+        for p in self.board.ownedTiles(player):
+            total += p.cost
+            if hasattr(p, "houses"):
+                total += p.houses*Property.houseCost[p.group]
+        for p in self.board.mortgagedProperties(player):
+            total += p.cost//2
+        return total
+
+    def declareBankrupcy(self, player):
+        for p in self.board.ownedTiles(player):
+            player.money += p.cost
+            if hasattr(p, "houses"):
+                player.money += p.houses*Property.houseCost[p.group]
+                p.houses = 0
+            p.owner = None
+        for p in self.board.mortgagedProperties(player):
+            player.money += p.cost//2
+            p.owner = None
+        player.isBankrupt = True
+            
+
     def canBuy(self, player):
         tile = self.board.getTile(player.position)
         if hasattr(tile, "owner"):
@@ -58,7 +81,6 @@ class Game:
             p1.money -= amount
         if p2:
             p2.money += amount
-        print(f"{p1.name} paid {p2.name} £{amount}")
 
     def collectFreeParking(self, player):
         player.money += self.freeParkingValue

@@ -36,7 +36,6 @@ class Pack:
         cardNo = self.order.pop(0)
         if cardNo != len(self.names):
             self.order.append(cardNo)
-        print(f"Card: {self.names[cardNo]}")
         fine = self.cardFunctions[cardNo](player)
         if fine:
             return fine, self.names[cardNo]
